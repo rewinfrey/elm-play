@@ -2,7 +2,9 @@ module Bingo where
 
 import Html
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import String
+import StartApp.Simple as StartApp
 
 -- Model
 
@@ -31,6 +33,7 @@ initialModel =
 type Action
   = NoOp
   | Sort
+  | Delete Int
 
 update action model =
   case action of
@@ -39,6 +42,13 @@ update action model =
 
     Sort ->
       { model | entries = List.sortBy .points model.entries }
+
+    Delete id ->
+      let
+          remainingEntries =
+            List.filter (\e -> e.id /= id) model.entries
+      in
+      { model | entries = remainingEntries }
 
 -- View
 
@@ -61,27 +71,41 @@ pageFooter =
            [ Html.text "reset the page!" ] ]
 
 
-entryItem entry =
+entryItem address entry =
   Html.li [ ]
     [ Html.span [ class "phrase" ] [ Html.text entry.phrase ]
     , Html.span [ class "points" ] [ Html.text (toString entry.points) ]
+    , Html.button
+        [ class "delete", Html.Events.onClick address (Delete entry.id) ]
+        [ ]
     ]
 
 
-entryList entries =
-  Html.ul [ ] (List.map entryItem entries)
+entryList address entries =
+  let
+      entryItems = List.map (entryItem address) entries
+  in
+  Html.ul [ ] entryItems
 
 
-view model =
+view address model =
   Html.div [ id "container" ]
     [ pageHeader
-    , entryList model.entries
+    , entryList address model.entries
+    , Html.button
+        [ class "sort", Html.Events.onClick address Sort ]
+        [ Html.text "Sort" ]
     , pageFooter
     ]
 
 -- Wire it together
 
 main =
-  initialModel
-    |> update Sort
-    |> view
+--  initialModel
+--    |> update Sort
+--    |> view
+  StartApp.start
+    { model = initialModel
+    , view = view
+    , update = update
+    }

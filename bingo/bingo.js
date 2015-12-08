@@ -10220,6 +10220,105 @@ Elm.Html.Attributes.make = function (_elm) {
                                         ,property: property
                                         ,attribute: attribute};
 };
+Elm.Html = Elm.Html || {};
+Elm.Html.Events = Elm.Html.Events || {};
+Elm.Html.Events.make = function (_elm) {
+   "use strict";
+   _elm.Html = _elm.Html || {};
+   _elm.Html.Events = _elm.Html.Events || {};
+   if (_elm.Html.Events.values) return _elm.Html.Events.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Json$Decode = Elm.Json.Decode.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $VirtualDom = Elm.VirtualDom.make(_elm);
+   var _op = {};
+   var keyCode = A2($Json$Decode._op[":="],"keyCode",$Json$Decode.$int);
+   var targetChecked = A2($Json$Decode.at,_U.list(["target","checked"]),$Json$Decode.bool);
+   var targetValue = A2($Json$Decode.at,_U.list(["target","value"]),$Json$Decode.string);
+   var defaultOptions = $VirtualDom.defaultOptions;
+   var Options = F2(function (a,b) {    return {stopPropagation: a,preventDefault: b};});
+   var onWithOptions = $VirtualDom.onWithOptions;
+   var on = $VirtualDom.on;
+   var messageOn = F3(function (name,addr,msg) {    return A3(on,name,$Json$Decode.value,function (_p0) {    return A2($Signal.message,addr,msg);});});
+   var onClick = messageOn("click");
+   var onDoubleClick = messageOn("dblclick");
+   var onMouseMove = messageOn("mousemove");
+   var onMouseDown = messageOn("mousedown");
+   var onMouseUp = messageOn("mouseup");
+   var onMouseEnter = messageOn("mouseenter");
+   var onMouseLeave = messageOn("mouseleave");
+   var onMouseOver = messageOn("mouseover");
+   var onMouseOut = messageOn("mouseout");
+   var onBlur = messageOn("blur");
+   var onFocus = messageOn("focus");
+   var onSubmit = messageOn("submit");
+   var onKey = F3(function (name,addr,handler) {    return A3(on,name,keyCode,function (code) {    return A2($Signal.message,addr,handler(code));});});
+   var onKeyUp = onKey("keyup");
+   var onKeyDown = onKey("keydown");
+   var onKeyPress = onKey("keypress");
+   return _elm.Html.Events.values = {_op: _op
+                                    ,onBlur: onBlur
+                                    ,onFocus: onFocus
+                                    ,onSubmit: onSubmit
+                                    ,onKeyUp: onKeyUp
+                                    ,onKeyDown: onKeyDown
+                                    ,onKeyPress: onKeyPress
+                                    ,onClick: onClick
+                                    ,onDoubleClick: onDoubleClick
+                                    ,onMouseMove: onMouseMove
+                                    ,onMouseDown: onMouseDown
+                                    ,onMouseUp: onMouseUp
+                                    ,onMouseEnter: onMouseEnter
+                                    ,onMouseLeave: onMouseLeave
+                                    ,onMouseOver: onMouseOver
+                                    ,onMouseOut: onMouseOut
+                                    ,on: on
+                                    ,onWithOptions: onWithOptions
+                                    ,defaultOptions: defaultOptions
+                                    ,targetValue: targetValue
+                                    ,targetChecked: targetChecked
+                                    ,keyCode: keyCode
+                                    ,Options: Options};
+};
+Elm.StartApp = Elm.StartApp || {};
+Elm.StartApp.Simple = Elm.StartApp.Simple || {};
+Elm.StartApp.Simple.make = function (_elm) {
+   "use strict";
+   _elm.StartApp = _elm.StartApp || {};
+   _elm.StartApp.Simple = _elm.StartApp.Simple || {};
+   if (_elm.StartApp.Simple.values) return _elm.StartApp.Simple.values;
+   var _U = Elm.Native.Utils.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var _op = {};
+   var start = function (config) {
+      var update = F2(function (maybeAction,model) {
+         var _p0 = maybeAction;
+         if (_p0.ctor === "Just") {
+               return A2(config.update,_p0._0,model);
+            } else {
+               return _U.crashCase("StartApp.Simple",{start: {line: 91,column: 7},end: {line: 96,column: 52}},_p0)("This should never happen.");
+            }
+      });
+      var actions = $Signal.mailbox($Maybe.Nothing);
+      var address = A2($Signal.forwardTo,actions.address,$Maybe.Just);
+      var model = A3($Signal.foldp,update,config.model,actions.signal);
+      return A2($Signal.map,config.view(address),model);
+   };
+   var Config = F3(function (a,b,c) {    return {model: a,view: b,update: c};});
+   return _elm.StartApp.Simple.values = {_op: _op,Config: Config,start: start};
+};
 Elm.Bingo = Elm.Bingo || {};
 Elm.Bingo.make = function (_elm) {
    "use strict";
@@ -10230,19 +10329,14 @@ Elm.Bingo.make = function (_elm) {
    $Debug = Elm.Debug.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
+   $StartApp$Simple = Elm.StartApp.Simple.make(_elm),
    $String = Elm.String.make(_elm);
    var _op = {};
-   var entryItem = function (entry) {
-      return A2($Html.li,
-      _U.list([]),
-      _U.list([A2($Html.span,_U.list([$Html$Attributes.$class("phrase")]),_U.list([$Html.text(entry.phrase)]))
-              ,A2($Html.span,_U.list([$Html$Attributes.$class("points")]),_U.list([$Html.text($Basics.toString(entry.points))]))]));
-   };
-   var entryList = function (entries) {    return A2($Html.ul,_U.list([]),A2($List.map,entryItem,entries));};
    var pageFooter = A2($Html.footer,
    _U.list([]),
    _U.list([A2($Html.a,_U.list([$Html$Attributes.href("http://localhost:8000")]),_U.list([$Html.text("reset the page!")]))]));
@@ -10250,30 +10344,45 @@ Elm.Bingo.make = function (_elm) {
       return $Html.text($String.trimRight(A2($String.repeat,times,$String.toUpper(A2($Basics._op["++"],message," ")))));
    });
    var pageHeader = A2($Html.h1,_U.list([]),_U.list([A2(title,"bingo!",3)]));
-   var view = function (model) {
-      return A2($Html.div,_U.list([$Html$Attributes.id("container")]),_U.list([pageHeader,entryList(model.entries),pageFooter]));
-   };
    var update = F2(function (action,model) {
       var _p0 = action;
-      if (_p0.ctor === "NoOp") {
-            return model;
-         } else {
-            return _U.update(model,{entries: A2($List.sortBy,function (_) {    return _.points;},model.entries)});
-         }
+      switch (_p0.ctor)
+      {case "NoOp": return model;
+         case "Sort": return _U.update(model,{entries: A2($List.sortBy,function (_) {    return _.points;},model.entries)});
+         default: var remainingEntries = A2($List.filter,function (e) {    return !_U.eq(e.id,_p0._0);},model.entries);
+           return _U.update(model,{entries: remainingEntries});}
    });
+   var Delete = function (a) {    return {ctor: "Delete",_0: a};};
+   var entryItem = F2(function (address,entry) {
+      return A2($Html.li,
+      _U.list([]),
+      _U.list([A2($Html.span,_U.list([$Html$Attributes.$class("phrase")]),_U.list([$Html.text(entry.phrase)]))
+              ,A2($Html.span,_U.list([$Html$Attributes.$class("points")]),_U.list([$Html.text($Basics.toString(entry.points))]))
+              ,A2($Html.button,_U.list([$Html$Attributes.$class("delete"),A2($Html$Events.onClick,address,Delete(entry.id))]),_U.list([]))]));
+   });
+   var entryList = F2(function (address,entries) {    var entryItems = A2($List.map,entryItem(address),entries);return A2($Html.ul,_U.list([]),entryItems);});
    var Sort = {ctor: "Sort"};
+   var view = F2(function (address,model) {
+      return A2($Html.div,
+      _U.list([$Html$Attributes.id("container")]),
+      _U.list([pageHeader
+              ,A2(entryList,address,model.entries)
+              ,A2($Html.button,_U.list([$Html$Attributes.$class("sort"),A2($Html$Events.onClick,address,Sort)]),_U.list([$Html.text("Sort")]))
+              ,pageFooter]));
+   });
    var NoOp = {ctor: "NoOp"};
    var newEntry = F3(function (phrase,points,id) {    return {phrase: phrase,points: points,wasSpoken: false,id: id};});
    var initialModel = {entries: _U.list([A3(newEntry,"Doing Agile",200,2)
                                         ,A3(newEntry,"In The Cloud",300,3)
                                         ,A3(newEntry,"Future-Proof",100,1)
                                         ,A3(newEntry,"Rock-Star Ninja",400,4)])};
-   var main = view(A2(update,Sort,initialModel));
+   var main = $StartApp$Simple.start({model: initialModel,view: view,update: update});
    return _elm.Bingo.values = {_op: _op
                               ,newEntry: newEntry
                               ,initialModel: initialModel
                               ,NoOp: NoOp
                               ,Sort: Sort
+                              ,Delete: Delete
                               ,update: update
                               ,title: title
                               ,pageHeader: pageHeader

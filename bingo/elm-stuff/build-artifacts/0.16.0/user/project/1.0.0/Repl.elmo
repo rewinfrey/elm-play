@@ -12,9 +12,7 @@ Elm.Repl.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm);
    var _op = {};
    var tsol = {ctor: "_Tuple0"};
-   var entry = {phrase: "Future-proof",points: 100,wasSpoken: false};
-   var entry2 = _U.update(entry,{points: 500});
-   var entry3 = _U.update(entry,{points: 500,wasSpoken: true});
-   var deltron3030 = entry.wasSpoken;
-   return _elm.Repl.values = {_op: _op,deltron3030: deltron3030,entry: entry,entry2: entry2,entry3: entry3,tsol: tsol};
+   var isNegative = function (n) {    return _U.cmp(n,0) < 0;};
+   var deltron3030 = A2($List.filter,function (n) {    return _U.eq(n,1);},_U.range(-2,3));
+   return _elm.Repl.values = {_op: _op,deltron3030: deltron3030,isNegative: isNegative,tsol: tsol};
 };
