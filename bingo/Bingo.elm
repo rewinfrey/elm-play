@@ -7,7 +7,6 @@ import String
 import StartApp.Simple as StartApp
 
 -- Model
-
 newEntry phrase points id =
   {
     phrase = phrase
@@ -28,12 +27,14 @@ initialModel =
       ]
   }
 
--- Update
 
+-- Update
 type Action
   = NoOp
   | Sort
   | Delete Int
+  | Mark Int
+
 
 update action model =
   case action of
@@ -45,10 +46,20 @@ update action model =
 
     Delete id ->
       let
-          remainingEntries =
-            List.filter (\e -> e.id /= id) model.entries
+        remainingEntries =
+          List.filter (\e -> e.id /= id) model.entries
       in
       { model | entries = remainingEntries }
+
+    Mark id ->
+      let
+        updateEntry e =
+          if e.id == id
+             then { e | wasSpoken = (not e.wasSpoken) }
+             else e
+      in
+        { model | entries = List.map updateEntry model.entries }
+
 
 -- View
 
@@ -60,9 +71,15 @@ title message times =
     |> String.trimRight
     |> Html.text
 
-
+pageHeader : Html.Html
 pageHeader =
   Html.h1 [ ] [ title "bingo!" 3 ]
+
+
+sortButton address =
+  Html.button
+    [ class "sort", Html.Events.onClick address Sort ]
+    [ Html.text "Sort" ]
 
 
 pageFooter =
@@ -72,7 +89,10 @@ pageFooter =
 
 
 entryItem address entry =
-  Html.li [ ]
+  Html.li
+    [ classList [ ("highlight", entry.wasSpoken) ]
+    , onClick address (Mark entry.id)
+    ]
     [ Html.span [ class "phrase" ] [ Html.text entry.phrase ]
     , Html.span [ class "points" ] [ Html.text (toString entry.points) ]
     , Html.button
@@ -80,30 +100,41 @@ entryItem address entry =
         [ ]
     ]
 
+totalPoints entries =
+  entries
+    |> List.filter .wasSpoken
+    |> List.foldl (\e sum -> sum + e.points) 0
+
+
+totalItem total =
+  Html.li
+    [ class "total" ]
+    [ Html.span [ class "label" ]
+                [ Html.text "Total" ],
+      Html.span [ class "points" ]
+                [ Html.text (toString total) ]
+    ]
+
 
 entryList address entries =
   let
-      entryItems = List.map (entryItem address) entries
+    entryItems = List.map (entryItem address) entries
+    items = entryItems ++ [ totalItem (totalPoints entries) ]
   in
-  Html.ul [ ] entryItems
+  Html.ul [ ] items
 
 
 view address model =
   Html.div [ id "container" ]
     [ pageHeader
     , entryList address model.entries
-    , Html.button
-        [ class "sort", Html.Events.onClick address Sort ]
-        [ Html.text "Sort" ]
+    , sortButton address
     , pageFooter
     ]
 
--- Wire it together
 
+-- Wire it together
 main =
---  initialModel
---    |> update Sort
---    |> view
   StartApp.start
     { model = initialModel
     , view = view
