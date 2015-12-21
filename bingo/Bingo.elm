@@ -5,8 +5,25 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import String
 import StartApp.Simple as StartApp
+import BingoUtils as Utils
 
 -- Model
+
+type alias Entry =
+  { phrase: String
+  , points: Int
+  , wasSpoken: Bool
+  , id: Int }
+
+type alias Model =
+  {
+    entries: List Entry,
+    phraseInput: String,
+    pointsInput: String,
+    nextID: Int
+  }
+
+newEntry : String -> Int -> Int -> Entry
 newEntry phrase points id =
   {
     phrase = phrase
@@ -16,6 +33,7 @@ newEntry phrase points id =
   }
 
 
+initialModel : Model
 initialModel =
   {
     entries =
@@ -24,7 +42,10 @@ initialModel =
       , newEntry "In The Cloud" 300 3
       , newEntry "Future-Proof" 100 1
       , newEntry "Rock-Star Ninja" 400 4
-      ]
+      ],
+    phraseInput = "",
+    pointsInput = "",
+    nextID = 5
   }
 
 
@@ -34,8 +55,12 @@ type Action
   | Sort
   | Delete Int
   | Mark Int
+  | UpdatePhraseInput String
+  | UpdatePointsInput String
+  | Add
 
 
+update : Action -> Model -> Model
 update action model =
   case action of
     NoOp ->
@@ -59,6 +84,29 @@ update action model =
              else e
       in
         { model | entries = List.map updateEntry model.entries }
+
+    UpdatePhraseInput contents ->
+      { model | phraseInput = contents }
+
+    UpdatePointsInput contents ->
+      { model | pointsInput = contents }
+
+    Add ->
+      let
+        entryToAdd =
+          newEntry model.phraseInput (Utils.parseInt model.pointsInput) model.nextID
+        isInvalid model =
+          String.isEmpty model.phraseInput || String.isEmpty model.pointsInput
+      in
+        if isInvalid model
+        then model
+        else
+          { model |
+              phraseInput = "",
+              pointsInput = "",
+              entries = entryToAdd :: model.entries,
+              nextID = model.nextID + 1
+          }
 
 
 -- View
@@ -88,6 +136,7 @@ pageFooter =
            [ Html.text "reset the page!" ] ]
 
 
+entryItem : Signal.Address Action -> Entry -> Html.Html
 entryItem address entry =
   Html.li
     [ classList [ ("highlight", entry.wasSpoken) ]
@@ -100,6 +149,7 @@ entryItem address entry =
         [ ]
     ]
 
+totalPoints : List Entry -> Int
 totalPoints entries =
   entries
     |> List.filter .wasSpoken
@@ -121,12 +171,38 @@ entryList address entries =
     entryItems = List.map (entryItem address) entries
     items = entryItems ++ [ totalItem (totalPoints entries) ]
   in
-  Html.ul [ ] items
+    Html.ul [ ] items
+
+entryForm : Signal.Address Action -> Model -> Html.Html
+entryForm address model =
+  Html.div [ ]
+    [ Html.input
+        [ type' "text",
+          placeholder "Phrase",
+          value model.phraseInput,
+          name "phrase",
+          autofocus True,
+          Utils.onInput address UpdatePhraseInput
+        ]
+        [],
+      Html.input
+        [ type' "number",
+          placeholder "Points",
+          value model.pointsInput,
+          name "points",
+          Utils.onInput address UpdatePointsInput
+        ]
+        [ ],
+      Html.button [ class "add", onClick address Add ] [ Html.text "Add" ],
+      Html.h2 [ ] [ Html.text (model.phraseInput ++ " " ++ model.pointsInput) ]
+    ]
 
 
+view : Signal.Address Action -> Model -> Html.Html
 view address model =
   Html.div [ id "container" ]
     [ pageHeader
+    , entryForm address model
     , entryList address model.entries
     , sortButton address
     , pageFooter
@@ -134,6 +210,7 @@ view address model =
 
 
 -- Wire it together
+main : Signal Html.Html
 main =
   StartApp.start
     { model = initialModel
