@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Thumbs</title>
+  <script type="text/javascript" src="elm.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="elm-app-lives-here"></div>
+
+  <form onsubmit="return sendComment(this);">
+    <input id="comment" type="text">
+    <input type="submit">
+  </form>
+</body>
+
+<script type="text/javascript">
+  var thumbsModel = localStorage.getItem('thumbs-model');
+  var startingModel = thumbsModel ? JSON.parse(thumbsModel) : null;
+
+  var elmDiv = document.getElementById('elm-app-lives-here');
+  var elmApp = Elm.embed(Elm.Thumbs, elmDiv,
+                         { comments: "", getStoredModel: startingModel });
+
+
+  elmApp.ports.setStoredModel.subscribe(function(model) {
+      localStorage.setItem('thumbs-model', JSON.stringify(model));
+  });
+
+  elmApp.ports.modelChanges.subscribe(function(model) {
+    console.log(model);
+  });
+
+
+  function sendComment(form) {
+    elmApp.ports.comments.send(form.comment.value);
+    form.reset();
+    return false;
+  }
+</script>
+
+</html>

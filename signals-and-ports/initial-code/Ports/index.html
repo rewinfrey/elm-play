@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Thumbs</title>
+  <script type="text/javascript" src="elm.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div id="elm-app-lives-here"></div>
+
+  <form onsubmit="return sendComment(this);">
+    <input id="comment" type="text">
+    <input type="submit">
+  </form>
+</body>
+
+<script type="text/javascript">
+  var elmDiv = document.getElementById('elm-app-lives-here');
+  var elmApp = Elm.embed(Elm.Thumbs, elmDiv);
+
+  function sendComment(form) {
+    form.reset();
+    return false;
+  }
+</script>
+
+</html>
