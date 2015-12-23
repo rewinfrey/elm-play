@@ -25,13 +25,17 @@ initialShip =
     isFiring = False
   }
 
+-- Update
+
+update : Int -> Model -> Model
+update x ship =
+  { ship | position = ship.position + (2 * x) }
 
 -- VIEW
 
-view : Model -> Element
-view ship =
+view : (Int, Int) -> Model -> Element
+view (w, h) ship =
   let
-    (w, h) = (400, 400)
     (w', h') = (toFloat w, toFloat h)
   in
     collage w h
@@ -59,7 +63,20 @@ drawShip gameHeight ship =
       |> move ((toFloat ship.position), (50 - gameHeight / 2))
       |> alpha ((toFloat ship.powerLevel) / 10)
 
+-- Signals
 
-main : Element
+direction : Signal Int
+direction =
+  let
+    x = Signal.map .x Keyboard.arrows
+    delta = Time.fps 30
+  in
+    Signal.sampleOn delta x
+
+model : Signal Model
+model =
+  Signal.foldp update initialShip direction
+
+main : Signal Element
 main =
-  view initialShip
+  Signal.map2 view Window.dimensions model
