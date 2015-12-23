@@ -19,7 +19,7 @@ integers =
 
 totalNumbers : Signal Int
 totalNumbers =
-  Signal.foldp (\num sum -> sum + num) 0 integers
+  Signal.foldp (+) 0 integers
 
 main : Signal Element
 main =

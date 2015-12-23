@@ -6657,7 +6657,7 @@ Elm.Main.make = function (_elm) {
    };
    var characters = A2($Signal.map,$Char.fromCode,$Keyboard.presses);
    var integers = A3($Signal.filterMap,parseInt,0,characters);
-   var totalNumbers = A3($Signal.foldp,F2(function (num,sum) {    return sum + num;}),0,integers);
+   var totalNumbers = A3($Signal.foldp,F2(function (x,y) {    return x + y;}),0,integers);
    var main = A2($Signal.map,$Graphics$Element.show,totalNumbers);
    return _elm.Main.values = {_op: _op,characters: characters,parseInt: parseInt,integers: integers,totalNumbers: totalNumbers,main: main};
 };
