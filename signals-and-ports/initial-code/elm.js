@@ -6648,10 +6648,10 @@ Elm.Main.make = function (_elm) {
    $String = Elm.String.make(_elm);
    var _op = {};
    var view = function (model) {    return $Graphics$Element.show(model);};
-   var chars = A2($Signal.map,$Char.fromCode,$Keyboard.presses);
-   var strings = A2($Signal.map,$String.fromChar,chars);
+   var update = F2(function ($char,model) {    return A2($Basics._op["++"],model,$String.fromChar($char));});
+   var characters = A2($Signal.map,$Char.fromCode,$Keyboard.presses);
    var initialModel = "";
-   var model = A3($Signal.foldp,F2(function (event,model) {    return A2($Basics._op["++"],model,event);}),initialModel,strings);
+   var model = A3($Signal.foldp,update,initialModel,characters);
    var main = A2($Signal.map,view,model);
-   return _elm.Main.values = {_op: _op,initialModel: initialModel,chars: chars,strings: strings,model: model,view: view,main: main};
+   return _elm.Main.values = {_op: _op,initialModel: initialModel,characters: characters,model: model,update: update,view: view,main: main};
 };
