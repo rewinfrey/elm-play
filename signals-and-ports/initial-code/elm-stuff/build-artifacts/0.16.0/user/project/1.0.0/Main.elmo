@@ -5,18 +5,21 @@ Elm.Main.make = function (_elm) {
    if (_elm.Main.values) return _elm.Main.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
+   $Char = Elm.Char.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Keyboard = Elm.Keyboard.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Mouse = Elm.Mouse.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
    var _op = {};
    var view = function (model) {    return $Graphics$Element.show(model);};
-   var update = F2(function (even,model) {    return model + 1;});
-   var initialModel = 0;
-   var model = A3($Signal.foldp,update,initialModel,$Mouse.clicks);
+   var chars = A2($Signal.map,$Char.fromCode,$Keyboard.presses);
+   var strings = A2($Signal.map,$String.fromChar,chars);
+   var initialModel = "";
+   var model = A3($Signal.foldp,F2(function (event,model) {    return A2($Basics._op["++"],model,event);}),initialModel,strings);
    var main = A2($Signal.map,view,model);
-   return _elm.Main.values = {_op: _op,initialModel: initialModel,update: update,model: model,view: view,main: main};
+   return _elm.Main.values = {_op: _op,initialModel: initialModel,chars: chars,strings: strings,model: model,view: view,main: main};
 };

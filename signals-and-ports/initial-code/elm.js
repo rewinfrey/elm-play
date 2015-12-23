@@ -6630,63 +6630,6 @@ Elm.Keyboard.make = function (_elm) {
                                  ,keysDown: keysDown
                                  ,presses: presses};
 };
-Elm.Native = Elm.Native || {};
-Elm.Native.Mouse = {};
-Elm.Native.Mouse.make = function(localRuntime) {
-	localRuntime.Native = localRuntime.Native || {};
-	localRuntime.Native.Mouse = localRuntime.Native.Mouse || {};
-	if (localRuntime.Native.Mouse.values)
-	{
-		return localRuntime.Native.Mouse.values;
-	}
-
-	var NS = Elm.Native.Signal.make(localRuntime);
-	var Utils = Elm.Native.Utils.make(localRuntime);
-
-	var position = NS.input('Mouse.position', Utils.Tuple2(0, 0));
-
-	var isDown = NS.input('Mouse.isDown', false);
-
-	var clicks = NS.input('Mouse.clicks', Utils.Tuple0);
-
-	var node = localRuntime.isFullscreen()
-		? document
-		: localRuntime.node;
-
-	localRuntime.addListener([clicks.id], node, 'click', function click() {
-		localRuntime.notify(clicks.id, Utils.Tuple0);
-	});
-	localRuntime.addListener([isDown.id], node, 'mousedown', function down() {
-		localRuntime.notify(isDown.id, true);
-	});
-	localRuntime.addListener([isDown.id], node, 'mouseup', function up() {
-		localRuntime.notify(isDown.id, false);
-	});
-	localRuntime.addListener([position.id], node, 'mousemove', function move(e) {
-		localRuntime.notify(position.id, Utils.getXY(e));
-	});
-
-	return localRuntime.Native.Mouse.values = {
-		position: position,
-		isDown: isDown,
-		clicks: clicks
-	};
-};
-
-Elm.Mouse = Elm.Mouse || {};
-Elm.Mouse.make = function (_elm) {
-   "use strict";
-   _elm.Mouse = _elm.Mouse || {};
-   if (_elm.Mouse.values) return _elm.Mouse.values;
-   var _U = Elm.Native.Utils.make(_elm),$Basics = Elm.Basics.make(_elm),$Native$Mouse = Elm.Native.Mouse.make(_elm),$Signal = Elm.Signal.make(_elm);
-   var _op = {};
-   var clicks = $Native$Mouse.clicks;
-   var isDown = $Native$Mouse.isDown;
-   var position = $Native$Mouse.position;
-   var x = A2($Signal.map,$Basics.fst,position);
-   var y = A2($Signal.map,$Basics.snd,position);
-   return _elm.Mouse.values = {_op: _op,position: position,x: x,y: y,isDown: isDown,clicks: clicks};
-};
 Elm.Main = Elm.Main || {};
 Elm.Main.make = function (_elm) {
    "use strict";
@@ -6694,18 +6637,21 @@ Elm.Main.make = function (_elm) {
    if (_elm.Main.values) return _elm.Main.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
+   $Char = Elm.Char.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Keyboard = Elm.Keyboard.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Mouse = Elm.Mouse.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm);
    var _op = {};
    var view = function (model) {    return $Graphics$Element.show(model);};
-   var update = F2(function (even,model) {    return model + 1;});
-   var initialModel = 0;
-   var model = A3($Signal.foldp,update,initialModel,$Mouse.clicks);
+   var chars = A2($Signal.map,$Char.fromCode,$Keyboard.presses);
+   var strings = A2($Signal.map,$String.fromChar,chars);
+   var initialModel = "";
+   var model = A3($Signal.foldp,F2(function (event,model) {    return A2($Basics._op["++"],model,event);}),initialModel,strings);
    var main = A2($Signal.map,view,model);
-   return _elm.Main.values = {_op: _op,initialModel: initialModel,update: update,model: model,view: view,main: main};
+   return _elm.Main.values = {_op: _op,initialModel: initialModel,chars: chars,strings: strings,model: model,view: view,main: main};
 };
