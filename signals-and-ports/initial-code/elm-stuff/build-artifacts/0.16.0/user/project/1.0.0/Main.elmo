@@ -5,16 +5,27 @@ Elm.Main.make = function (_elm) {
    if (_elm.Main.values) return _elm.Main.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
+   $Char = Elm.Char.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Keyboard = Elm.Keyboard.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $Time = Elm.Time.make(_elm);
+   $String = Elm.String.make(_elm);
    var _op = {};
-   var everySecond = $Time.every($Time.second);
-   var runningTime = A3($Signal.foldp,F2(function (second,count) {    return count + 1;}),0,everySecond);
-   var main = A2($Signal.map,$Graphics$Element.show,runningTime);
-   return _elm.Main.values = {_op: _op,everySecond: everySecond,runningTime: runningTime,main: main};
+   var parseInt = function (character) {
+      var _p0 = $String.toInt($String.fromChar(character));
+      if (_p0.ctor === "Ok") {
+            return $Maybe.Just(_p0._0);
+         } else {
+            return $Maybe.Nothing;
+         }
+   };
+   var characters = A2($Signal.map,$Char.fromCode,$Keyboard.presses);
+   var integers = A3($Signal.filterMap,parseInt,0,characters);
+   var totalNumbers = A3($Signal.foldp,F2(function (num,sum) {    return sum + num;}),0,integers);
+   var main = A2($Signal.map,$Graphics$Element.show,totalNumbers);
+   return _elm.Main.values = {_op: _op,characters: characters,parseInt: parseInt,integers: integers,totalNumbers: totalNumbers,main: main};
 };
