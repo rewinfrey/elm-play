@@ -2,12 +2,31 @@ import Graphics.Element exposing (..)
 import Keyboard
 import Mouse
 
+-- Model
 
-state : Signal Int
-state =
-  Signal.foldp (\_ count -> count + 1) 0 Mouse.clicks
+type alias Model = Int
 
+initialModel : Model
+initialModel =
+  0
+
+-- Update
+
+update : a -> Model -> Model
+update even model =
+  model + 1
+
+model : Signal Model
+model =
+  Signal.foldp update initialModel Mouse.clicks
+
+
+-- View
+
+view : Model -> Element
+view model =
+  show model
 
 main : Signal Element
 main =
-  Signal.map show state
+  Signal.map view model
