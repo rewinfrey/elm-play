@@ -11,6 +11,7 @@ import Time
 
 -- MODEL
 
+
 type alias Model =
   { position: Int,
     powerLevel: Int,
@@ -27,11 +28,38 @@ initialShip =
 
 -- Update
 
-update : Int -> Model -> Model
-update x ship =
-  { ship | position = ship.position + (2 * x) }
+
+type Action = NoOp | Left | Right | Fire Bool | Tick
+
+
+update : Action -> Model -> Model
+update action ship =
+  case action of
+    NoOp ->
+      ship
+    Left ->
+      { ship | position = ship.position - 1 }
+    Right ->
+      { ship | position = ship.position + 1 }
+    Fire firing ->
+      let
+        newPowerLevel =
+          if firing then ship.powerLevel - 1 else ship.powerLevel
+      in
+        { ship |
+            isFiring = firing,
+            powerLevel = newPowerLevel
+        }
+    Tick ->
+      let
+        newPowerLevel =
+          if ship.powerLevel < 10 then ship.powerLevel + 1 else ship.powerLevel
+      in
+        { ship | powerLevel = newPowerLevel }
+
 
 -- VIEW
+
 
 view : (Int, Int) -> Model -> Element
 view (w, h) ship =
@@ -63,19 +91,44 @@ drawShip gameHeight ship =
       |> move ((toFloat ship.position), (50 - gameHeight / 2))
       |> alpha ((toFloat ship.powerLevel) / 10)
 
+
 -- Signals
 
-direction : Signal Int
+
+direction : Signal Action
 direction =
   let
     x = Signal.map .x Keyboard.arrows
     delta = Time.fps 30
+
+    toAction n =
+      case n of
+        -1 -> Left
+        1 -> Right
+        _ -> NoOp
+
+    actions = Signal.map toAction x
   in
-    Signal.sampleOn delta x
+    Signal.sampleOn delta actions
+
+
+fire : Signal Action
+fire =
+  Signal.map Fire Keyboard.space
+
+ticker : Signal Action
+ticker =
+  Signal.map (always Tick) (Time.every Time.second)
+
+
+input : Signal Action
+input =
+  Signal.mergeMany [direction, fire, ticker]
+
 
 model : Signal Model
 model =
-  Signal.foldp update initialShip direction
+  Signal.foldp update initialShip input
 
 main : Signal Element
 main =
