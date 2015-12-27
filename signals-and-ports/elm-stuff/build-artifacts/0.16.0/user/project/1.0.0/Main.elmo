@@ -5,32 +5,23 @@ Elm.Main.make = function (_elm) {
    if (_elm.Main.values) return _elm.Main.values;
    var _U = Elm.Native.Utils.make(_elm),
    $Basics = Elm.Basics.make(_elm),
-   $Color = Elm.Color.make(_elm),
    $Debug = Elm.Debug.make(_elm),
-   $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
-   $Graphics$Element = Elm.Graphics.Element.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Mouse = Elm.Mouse.make(_elm),
    $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm),
-   $Window = Elm.Window.make(_elm);
+   $Signal = Elm.Signal.make(_elm);
    var _op = {};
-   var drawCircle = F2(function (x,y) {
-      return A2($Graphics$Collage.move,{ctor: "_Tuple2",_0: x,_1: y},A2($Graphics$Collage.filled,$Color.red,$Graphics$Collage.circle(50)));
+   var inbox = $Signal.mailbox("Waiting...");
+   var messages = inbox.signal;
+   var view = F2(function (address,greeting) {
+      return A2($Html.div,
+      _U.list([]),
+      _U.list([A2($Html.button,_U.list([A2($Html$Events.onClick,address,"Hello")]),_U.list([$Html.text("Click for English")]))
+              ,A2($Html.button,_U.list([A2($Html$Events.onClick,address,"Salut")]),_U.list([$Html.text("Click for French")]))
+              ,A2($Html.p,_U.list([]),_U.list([$Html.text(greeting)]))]));
    });
-   var view = F2(function (_p1,_p0) {
-      var _p2 = _p1;
-      var _p6 = _p2._1;
-      var _p5 = _p2._0;
-      var _p3 = _p0;
-      var _p4 = {ctor: "_Tuple2",_0: $Basics.toFloat(_p5),_1: $Basics.toFloat(_p6)};
-      var w$ = _p4._0;
-      var h$ = _p4._1;
-      var x = $Basics.toFloat(_p3._0) - w$ / 2;
-      var y = h$ / 2 - $Basics.toFloat(_p3._1);
-      return A3($Graphics$Collage.collage,_p5,_p6,_U.list([A2(drawCircle,x,y)]));
-   });
-   var main = A3($Signal.map2,view,$Window.dimensions,$Mouse.position);
-   return _elm.Main.values = {_op: _op,drawCircle: drawCircle,view: view,main: main};
+   var main = A2($Signal.map,view(inbox.address),messages);
+   return _elm.Main.values = {_op: _op,view: view,inbox: inbox,messages: messages,main: main};
 };
