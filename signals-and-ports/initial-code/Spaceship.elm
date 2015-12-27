@@ -114,7 +114,11 @@ direction =
 
 fire : Signal Action
 fire =
-  Signal.map Fire Keyboard.space
+  let
+    delta = Time.fps 30
+    spaces = Signal.map Fire Keyboard.space
+  in
+    Signal.sampleOn delta spaces
 
 ticker : Signal Action
 ticker =

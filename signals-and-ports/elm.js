@@ -6918,7 +6918,7 @@ Elm.Spaceship.make = function (_elm) {
    var Tick = {ctor: "Tick"};
    var ticker = A2($Signal.map,$Basics.always(Tick),$Time.every($Time.second));
    var Fire = function (a) {    return {ctor: "Fire",_0: a};};
-   var fire = A2($Signal.map,Fire,$Keyboard.space);
+   var fire = function () {    var fire = A2($Signal.map,Fire,$Keyboard.space);var fireRate = $Time.fps(30);return A2($Signal.sampleOn,fireRate,fire);}();
    var Right = {ctor: "Right"};
    var Left = {ctor: "Left"};
    var NoOp = {ctor: "NoOp"};
