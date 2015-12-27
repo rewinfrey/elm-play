@@ -15,15 +15,33 @@
     <input id="comment" type="text">
     <input type="submit">
   </form>
+  <button id="reset" onclick="return resetLocalStorage();">Reset</button>
 </body>
 
 <script type="text/javascript">
   var elmDiv = document.getElementById('elm-app-lives-here');
-  var elmApp = Elm.embed(Elm.Thumbs, elmDiv);
+  var thumbsModel = localStorage.getItem('thumbs-model');
+  var startingModel = thumbsModel ? JSON.parse(thumbsModel) : null;
+  var elmApp = Elm.embed(Elm.Thumbs,
+                         elmDiv,
+                         { comments: "",
+                           getStoredModel: startingModel });
+
+  elmApp.ports.modelChanges.subscribe(function(model) {
+  });
+
+  elmApp.ports.setStoredModel.subscribe(function(model) {
+    localStorage.setItem('thumbs-model', JSON.stringify(model));
+  });
 
   function sendComment(form) {
+    elmApp.ports.comments.send(form.comment.value);
     form.reset();
     return false;
+  }
+
+  function resetLocalStorage() {
+    localStorage.clear();
   }
 </script>
 

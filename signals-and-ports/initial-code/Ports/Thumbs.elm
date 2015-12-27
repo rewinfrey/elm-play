@@ -9,16 +9,17 @@ import Html.Events exposing (..)
 type alias Model =
   { ups : Int,
     downs : Int,
-    comments : List String
+    comments : List String,
+    reset : Bool
   }
 
 
 initialModel : Model
 initialModel =
-  { ups = 0,
-    downs = 0,
-    comments = []
-  }
+  let
+    emptyModel = { ups = 0, downs = 0, comments = [], reset = False }
+  in
+    Maybe.withDefault emptyModel getStoredModel
 
 
 -- UPDATE
@@ -35,7 +36,7 @@ update action model =
     Down ->
       { model | downs = model.downs + 1 }
     AddComment comment ->
-      { model | comments = comment :: model.comments }
+      { model | comments = List.append model.comments [comment] }
 
 
 -- VIEW
@@ -71,13 +72,27 @@ inbox =
 
 actions : Signal Action
 actions =
-  inbox.signal
+  Signal.merge inbox.signal (Signal.map AddComment comments)
 
 
 model : Signal Model
 model =
   Signal.foldp update initialModel actions
 
+
+-- PORTS
+
+port comments : Signal String
+
+port modelChanges : Signal Model
+port modelChanges =
+  model
+
+port setStoredModel : Signal Model
+port setStoredModel =
+  model
+
+port getStoredModel : Maybe Model
 
 main : Signal Html
 main =
